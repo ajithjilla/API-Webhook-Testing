@@ -7,7 +7,7 @@ from typing import Dict, Any
 fake_users_db: Dict[str, Dict[str, Any]] = {
     "user1": {
         "id": "user1",
-        "email": "john@example.com",
+        "gmail": "john@example.com",
         "name": "John Doe",
         "phone": "+1-234-567-8900",
         "password": "hashed_password_123",
@@ -15,7 +15,7 @@ fake_users_db: Dict[str, Dict[str, Any]] = {
     },
     "user2": {
         "id": "user2",
-        "email": "jane@example.com",
+        "gmail": "jane@example.com",
         "name": "Jane Smith",
         "phone": "+1-987-654-3210",
         "password": "hashed_password_456",
