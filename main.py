@@ -78,15 +78,15 @@ async def get_user(user_id: str):
     """
     Get user by ID
     
-    Returns: UserResponse with id, gmail, name, phone, created_at
+    Returns: UserResponse with id, mailId, name, mobile, created_at
     
     THIS ENDPOINT IS USED FOR TESTING BREAKING CHANGES
     
     Example breaking changes:
-    1. Remove 'gmail' field -> Frontend fails when displaying gmail
-    2. Remove 'phone' field -> Frontend fails when displaying phone
+    1. Remove 'mailId' field -> Frontend fails when displaying mailId
+    2. Remove 'mobile' field -> Frontend fails when displaying mobile
     3. Change response type from object to array
-    4. Change gmail type from string to integer
+    4. Change mailId type from string to integer
     """
     if user_id not in fake_users_db:
         raise HTTPException(status_code=404, detail="User not found")
@@ -94,9 +94,9 @@ async def get_user(user_id: str):
     user = fake_users_db[user_id]
     return UserResponse(
         id=user["id"],
-        gmail=user["gmail"],
+        mailId=user["mailId"],
         name=user["name"],
-        phone=user["phone"],
+        mobile=user["mobile"],
         created_at=user["created_at"]
     )
 
@@ -111,9 +111,9 @@ async def list_users():
     return [
         UserResponse(
             id=user["id"],
-            gmail=user["gmail"],
+            mailId=user["mailId"],
             name=user["name"],
-            phone=user["phone"],
+            mobile=user["mobile"],
             created_at=user["created_at"]
         )
         for user in fake_users_db.values()
@@ -126,10 +126,10 @@ async def create_user(request: CreateUserRequest):
     Create a new user
     
     Body parameters:
-    - gmail: str (required)
+    - mailId: str (required)
     - password: str (required)
     - name: str (required)
-    - phone: str (required)
+    - mobile: str (required)
     
     Returns: UserResponse with all fields
     """
@@ -137,10 +137,10 @@ async def create_user(request: CreateUserRequest):
     
     new_user = {
         "id": new_user_id,
-        "gmail": request.gmail,
+        "mailId": request.mailId,
         "password": request.password,
         "name": request.name,
-        "phone": request.phone,
+        "mobile": request.mobile,
         "created_at": datetime.now().isoformat() + "Z"
     }
     
@@ -148,9 +148,9 @@ async def create_user(request: CreateUserRequest):
     
     return UserResponse(
         id=new_user["id"],
-        gmail=new_user["gmail"],
+        mailId=new_user["mailId"],
         name=new_user["name"],
-        phone=new_user["phone"],
+        mobile=new_user["mobile"],
         created_at=new_user["created_at"]
     )
 
@@ -173,12 +173,12 @@ async def login(request: LoginRequest):
     3. Change token format
     4. Remove user object from response
     """
-    # Find user by gmail
+    # Find user by mailId
     user = None
     user_id = None
     
     for uid, u in fake_users_db.items():
-        if u["gmail"] == request.gmail:
+        if u["mailId"] == request.mailId:
             user = u
             user_id = uid
             break
@@ -201,7 +201,7 @@ async def login(request: LoginRequest):
         expiresIn=3600,  # 1 hour
         user={
             "id": user["id"],
-            "gmail": user["gmail"],
+            "mailId": user["mailId"],
             "name": user["name"]
         }
     )
@@ -252,9 +252,9 @@ async def get_profile(token: str):
     
     return {
         "id": user["id"],
-        "gmail": user["gmail"],
+        "mailId": user["mailId"],
         "name": user["name"],
-        "phone": user["phone"],
+        "mobile": user["mobile"],
         "created_at": user["created_at"],
         "lastLogin": datetime.now().isoformat() + "Z"
     }
