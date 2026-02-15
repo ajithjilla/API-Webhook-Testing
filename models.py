@@ -15,7 +15,7 @@ class UserResponse(BaseModel):
 
 class LoginRequest(BaseModel):
     """Request model for login"""
-    mail: str
+    email: str
     password: str
 
 
@@ -30,7 +30,7 @@ class LoginResponse(BaseModel):
 
 class CreateUserRequest(BaseModel):
     """Request model for creating user"""
-    mail: str
+    email: str
     password: str
     name: str
     phone: str
