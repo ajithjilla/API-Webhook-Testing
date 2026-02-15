@@ -78,13 +78,13 @@ async def get_user(user_id: str):
     """
     Get user by ID
     
-    Returns: UserResponse with id, email, name, mobile, created_at
+    Returns: UserResponse with id, email, name, phone, created_at
     
     THIS ENDPOINT IS USED FOR TESTING BREAKING CHANGES
     
     Example breaking changes:
     1. Remove 'email' field -> Frontend fails when displaying email
-    2. Remove 'mobile' field -> Frontend fails when displaying mobile
+    2. Remove 'phone' field -> Frontend fails when displaying phone
     3. Change response type from object to array
     4. Change email type from string to integer
     """
@@ -96,7 +96,7 @@ async def get_user(user_id: str):
         id=user["id"],
         email=user["email"],
         name=user["name"],
-        mobile=user["mobile"],
+        phone=user["phone"],
         created_at=user["created_at"]
     )
 
@@ -113,7 +113,7 @@ async def list_users():
             id=user["id"],
             email=user["email"],
             name=user["name"],
-            mobile=user["mobile"],
+            phone=user["phone"],
             created_at=user["created_at"]
         )
         for user in fake_users_db.values()
@@ -129,7 +129,7 @@ async def create_user(request: CreateUserRequest):
     - email: str (required)
     - password: str (required)
     - name: str (required)
-    - mobile: str (required)
+    - phone: str (required)
     
     Returns: UserResponse with all fields
     """
@@ -140,7 +140,7 @@ async def create_user(request: CreateUserRequest):
         "email": request.email,
         "password": request.password,
         "name": request.name,
-        "mobile": request.mobile,
+        "phone": request.phone,
         "created_at": datetime.now().isoformat() + "Z"
     }
     
@@ -150,7 +150,7 @@ async def create_user(request: CreateUserRequest):
         id=new_user["id"],
         email=new_user["email"],
         name=new_user["name"],
-        mobile=new_user["mobile"],
+        phone=new_user["phone"],
         created_at=new_user["created_at"]
     )
 
@@ -254,7 +254,7 @@ async def get_profile(token: str):
         "id": user["id"],
         "email": user["email"],
         "name": user["name"],
-        "mobile": user["mobile"],
+        "phone": user["phone"],
         "created_at": user["created_at"],
         "lastLogin": datetime.now().isoformat() + "Z"
     }

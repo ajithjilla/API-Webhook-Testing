@@ -9,7 +9,7 @@ fake_users_db: Dict[str, Dict[str, Any]] = {
         "id": "user1",
         "email": "john@example.com",
         "name": "John Doe",
-        "mobile": "+1-234-567-8900",
+        "phone": "+1-234-567-8900",
         "password": "hashed_password_123",
         "created_at": "2024-01-01T10:00:00Z"
     },
@@ -17,7 +17,7 @@ fake_users_db: Dict[str, Dict[str, Any]] = {
         "id": "user2",
         "email": "jane@example.com",
         "name": "Jane Smith",
-        "mobile": "+1-987-654-3210",
+        "phone": "+1-987-654-3210",
         "password": "hashed_password_456",
         "created_at": "2024-01-02T10:00:00Z"
     }
