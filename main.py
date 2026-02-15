@@ -1,14 +1,29 @@
 # main.py
-# Simple FastAPI application for testing breaking change detection
-# No database, just in-memory data and simple endpoints
+# FastAPI application for testing breaking change detection
+# Clean, modular structure with separated concerns
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from typing import Optional, List
-from datetime import datetime, timedelta
+from datetime import datetime
 
-app = FastAPI(title="Sample User API", version="1.0.0")
+from models import (
+    UserResponse,
+    LoginRequest,
+    LoginResponse,
+    CreateUserRequest,
+    RefreshTokenRequest
+)
+from database import fake_users_db
+
+# ============================================
+# APP INITIALIZATION
+# ============================================
+
+app = FastAPI(
+    title="Sample User API",
+    version="1.0.0",
+    description="API for testing breaking change detection"
+)
 
 # Enable CORS for React frontend
 app.add_middleware(
@@ -20,64 +35,12 @@ app.add_middleware(
 )
 
 # ============================================
-# MODELS (Schemas)
-# ============================================
-
-class UserResponse(BaseModel):
-    """Response model for user data"""
-    id: str
-    name: str
-    phone: str  # <- This field will also be removed
-    created_at: str
-
-class LoginRequest(BaseModel):
-    """Request model for login"""
-    password: str
-
-class LoginResponse(BaseModel):
-    """Response model for login"""
-    success: bool
-    token: str  # <- This will be removed in breaking change
-    refreshToken: str  # <- This will be removed in breaking change
-    expiresIn: int
-    user: dict
-
-class CreateUserRequest(BaseModel):
-    """Request model for creating user"""
-    password: str
-    name: str
-    phone: str
-
-# ============================================
-# FAKE DATA (In-memory storage)
-# ============================================
-
-fake_users_db = {
-    "user1": {
-        "id": "user1",
-        "email": "john@example.com",
-        "name": "John Doe",
-        "phone": "+1-234-567-8900",
-        "password": "hashed_password_123",
-        "created_at": "2024-01-01T10:00:00Z"
-    },
-    "user2": {
-        "id": "user2",
-        "email": "jane@example.com",
-        "name": "Jane Smith",
-        "phone": "+1-987-654-3210",
-        "password": "hashed_password_456",
-        "created_at": "2024-01-02T10:00:00Z"
-    }
-}
-
-# ============================================
-# API ENDPOINTS
+# HEALTH CHECK ENDPOINTS
 # ============================================
 
 @app.get("/")
 async def root():
-    """Health check endpoint"""
+    """Root endpoint - API health check"""
     return {
         "message": "User API is running",
         "version": "1.0.0",
@@ -89,10 +52,22 @@ async def root():
         ]
     }
 
+
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
+    """Health check endpoint for monitoring"""
     return {"status": "healthy"}
+
+
+@app.get("/api/status")
+async def get_status():
+    """Get API status and metadata"""
+    return {
+        "status": "running",
+        "version": "1.0.0",
+        "timestamp": datetime.now().isoformat() + "Z",
+        "users_count": len(fake_users_db)
+    }
 
 # ============================================
 # USER ENDPOINTS
@@ -125,10 +100,11 @@ async def get_user(user_id: str):
         created_at=user["created_at"]
     )
 
+
 @app.get("/api/users")
 async def list_users():
     """
-    List all users
+    List all users in the system
     
     Returns: List of UserResponse objects
     """
@@ -143,17 +119,19 @@ async def list_users():
         for user in fake_users_db.values()
     ]
 
+
 @app.post("/api/users")
 async def create_user(request: CreateUserRequest):
     """
     Create a new user
     
     Body parameters:
+    - email: str (required)
     - password: str (required)
     - name: str (required)
     - phone: str (required)
     
-    Returns: UserResponse with all fields including email and phone
+    Returns: UserResponse with all fields
     """
     new_user_id = f"user{len(fake_users_db) + 1}"
     
@@ -195,7 +173,7 @@ async def login(request: LoginRequest):
     3. Change token format
     4. Remove user object from response
     """
-    # Find user
+    # Find user by email
     user = None
     user_id = None
     
@@ -208,7 +186,11 @@ async def login(request: LoginRequest):
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
-    # Generate fake token
+    # Validate password
+    if user["password"] != request.password:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    # Generate fake tokens
     token = f"token_jwt_{user_id}_{datetime.now().timestamp()}"
     refresh_token = f"refresh_{user_id}_{datetime.now().timestamp()}"
     
@@ -224,15 +206,19 @@ async def login(request: LoginRequest):
         }
     )
 
+
 @app.post("/api/refresh-token")
-async def refresh_token(refresh_token: str):
+async def refresh_token(request: RefreshTokenRequest):
     """
     Refresh authentication token
+    
+    Body parameter:
+    - refresh_token: str (required)
     
     Returns: New token and refresh token
     """
     # Validate refresh token (simplified)
-    if not refresh_token.startswith("refresh_"):
+    if not request.refresh_token.startswith("refresh_"):
         raise HTTPException(status_code=401, detail="Invalid refresh token")
     
     new_token = f"token_jwt_refreshed_{datetime.now().timestamp()}"
@@ -252,7 +238,7 @@ async def refresh_token(refresh_token: str):
 async def get_profile(token: str):
     """
     Get current user profile
-    
+
     Query parameter: token (authentication token)
     
     Returns: User profile data
@@ -274,25 +260,7 @@ async def get_profile(token: str):
     }
 
 # ============================================
-# STATUS ENDPOINT (For testing)
-# ============================================
-
-@app.get("/api/status")
-async def get_status():
-    """
-    Get API status and info
-    
-    Used for testing API availability
-    """
-    return {
-        "status": "running",
-        "version": "1.0.0",
-        "timestamp": datetime.now().isoformat() + "Z",
-        "users_count": len(fake_users_db)
-    }
-
-# ============================================
-# RUN THE APP
+# SERVER STARTUP
 # ============================================
 
 if __name__ == "__main__":
@@ -303,12 +271,13 @@ if __name__ == "__main__":
     print("📡 OpenAPI Spec: http://localhost:8000/openapi.json")
     print("\nAvailable endpoints:")
     print("  GET  /                    - Health check")
-    print("  GET  /api/users/{id}      - Get user (has email, phone fields)")
-    print("  GET  /api/users           - List all users")
-    print("  POST /api/users           - Create user")
-    print("  POST /api/login           - Login (returns token, refreshToken)")
-    print("  POST /api/refresh-token   - Refresh token")
-    print("  GET  /api/profile         - Get user profile")
+    print("  GET  /health              - Health status")
     print("  GET  /api/status          - API status")
+    print("  GET  /api/users/{id}      - Get user by ID")
+    print("  GET  /api/users           - List all users")
+    print("  POST /api/users           - Create new user")
+    print("  POST /api/login           - User login")
+    print("  POST /api/refresh-token   - Refresh authentication token")
+    print("  GET  /api/profile         - Get user profile")
     
     uvicorn.run(app, host="0.0.0.0", port=8000)
