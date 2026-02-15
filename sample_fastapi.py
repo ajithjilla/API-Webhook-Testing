@@ -32,6 +32,7 @@ class UserResponse(BaseModel):
 
 class LoginRequest(BaseModel):
     """Request model for login"""
+    password: str
 
 class LoginResponse(BaseModel):
     """Response model for login"""
@@ -43,6 +44,7 @@ class LoginResponse(BaseModel):
 
 class CreateUserRequest(BaseModel):
     """Request model for creating user"""
+    password: str
     name: str
     phone: str
 
@@ -56,6 +58,7 @@ fake_users_db = {
         "email": "john@example.com",
         "name": "John Doe",
         "phone": "+1-234-567-8900",
+        "password": "hashed_password_123",
         "created_at": "2024-01-01T10:00:00Z"
     },
     "user2": {
@@ -63,6 +66,7 @@ fake_users_db = {
         "email": "jane@example.com",
         "name": "Jane Smith",
         "phone": "+1-987-654-3210",
+        "password": "hashed_password_456",
         "created_at": "2024-01-02T10:00:00Z"
     }
 }
@@ -115,6 +119,7 @@ async def get_user(user_id: str):
     user = fake_users_db[user_id]
     return UserResponse(
         id=user["id"],
+        email=user["email"],
         name=user["name"],
         phone=user["phone"],
         created_at=user["created_at"]
@@ -130,6 +135,7 @@ async def list_users():
     return [
         UserResponse(
             id=user["id"],
+            email=user["email"],
             name=user["name"],
             phone=user["phone"],
             created_at=user["created_at"]
@@ -143,6 +149,7 @@ async def create_user(request: CreateUserRequest):
     Create a new user
     
     Body parameters:
+    - password: str (required)
     - name: str (required)
     - phone: str (required)
     
@@ -152,6 +159,8 @@ async def create_user(request: CreateUserRequest):
     
     new_user = {
         "id": new_user_id,
+        "email": request.email,
+        "password": request.password,
         "name": request.name,
         "phone": request.phone,
         "created_at": datetime.now().isoformat() + "Z"
@@ -161,6 +170,7 @@ async def create_user(request: CreateUserRequest):
     
     return UserResponse(
         id=new_user["id"],
+        email=new_user["email"],
         name=new_user["name"],
         phone=new_user["phone"],
         created_at=new_user["created_at"]
@@ -190,7 +200,10 @@ async def login(request: LoginRequest):
     user_id = None
     
     for uid, u in fake_users_db.items():
-        
+        if u["email"] == request.email:
+            user = u
+            user_id = uid
+            break
     
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -206,6 +219,7 @@ async def login(request: LoginRequest):
         expiresIn=3600,  # 1 hour
         user={
             "id": user["id"],
+            "email": user["email"],
             "name": user["name"]
         }
     )
@@ -252,6 +266,7 @@ async def get_profile(token: str):
     
     return {
         "id": user["id"],
+        "email": user["email"],
         "name": user["name"],
         "phone": user["phone"],
         "created_at": user["created_at"],
