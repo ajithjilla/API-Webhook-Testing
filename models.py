@@ -9,13 +9,13 @@ class UserResponse(BaseModel):
     """Response model for user data"""
     id: str
     name: str
-    phone: str
+    mobile: str
     created_at: str
 
 
 class LoginRequest(BaseModel):
     """Request model for login"""
-    mail: str
+    email: str
     password: str
 
 
@@ -30,10 +30,10 @@ class LoginResponse(BaseModel):
 
 class CreateUserRequest(BaseModel):
     """Request model for creating user"""
-    mail: str
+    email: str
     password: str
     name: str
-    phone: str
+    mobile: str
 
 
 class RefreshTokenRequest(BaseModel):
