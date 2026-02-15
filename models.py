@@ -9,7 +9,7 @@ class UserResponse(BaseModel):
     """Response model for user data"""
     id: str
     name: str
-    phone: str
+    mobile: str
     created_at: str
 
 
@@ -33,7 +33,7 @@ class CreateUserRequest(BaseModel):
     email: str
     password: str
     name: str
-    phone: str
+    mobile: str
 
 
 class RefreshTokenRequest(BaseModel):
