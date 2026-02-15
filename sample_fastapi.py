@@ -27,7 +27,7 @@ class UserResponse(BaseModel):
     """Response model for user data"""
     id: str
     name: str
-    mobile: str  # <- This field will also be removed
+    phone: str  # <- This field will also be removed
     created_at: str
 
 class LoginRequest(BaseModel):
@@ -46,7 +46,7 @@ class CreateUserRequest(BaseModel):
     """Request model for creating user"""
     password: str
     name: str
-    mobile: str
+    phone: str
 
 # ============================================
 # FAKE DATA (In-memory storage)
@@ -57,7 +57,7 @@ fake_users_db = {
         "id": "user1",
         "email": "john@example.com",
         "name": "John Doe",
-        "mobile": "+1-234-567-8900",
+        "phone": "+1-234-567-8900",
         "password": "hashed_password_123",
         "created_at": "2024-01-01T10:00:00Z"
     },
@@ -65,7 +65,7 @@ fake_users_db = {
         "id": "user2",
         "email": "jane@example.com",
         "name": "Jane Smith",
-        "mobile": "+1-987-654-3210",
+        "phone": "+1-987-654-3210",
         "password": "hashed_password_456",
         "created_at": "2024-01-02T10:00:00Z"
     }
@@ -103,13 +103,13 @@ async def get_user(user_id: str):
     """
     Get user by ID
     
-    Returns: UserResponse with id, email, name, mobile, created_at
+    Returns: UserResponse with id, email, name, phone, created_at
     
     THIS ENDPOINT IS USED FOR TESTING BREAKING CHANGES
     
     Example breaking changes:
     1. Remove 'email' field -> Frontend fails when displaying email
-    2. Remove 'mobile' field -> Frontend fails when displaying mobile
+    2. Remove 'phone' field -> Frontend fails when displaying phone
     3. Change response type from object to array
     4. Change email type from string to integer
     """
@@ -121,7 +121,7 @@ async def get_user(user_id: str):
         id=user["id"],
         email=user["email"],
         name=user["name"],
-        mobile=user["mobile"],
+        phone=user["phone"],
         created_at=user["created_at"]
     )
 
@@ -137,7 +137,7 @@ async def list_users():
             id=user["id"],
             email=user["email"],
             name=user["name"],
-            mobile=user["mobile"],
+            phone=user["phone"],
             created_at=user["created_at"]
         )
         for user in fake_users_db.values()
@@ -151,9 +151,9 @@ async def create_user(request: CreateUserRequest):
     Body parameters:
     - password: str (required)
     - name: str (required)
-    - mobile: str (required)
+    - phone: str (required)
     
-    Returns: UserResponse with all fields including email and mobile
+    Returns: UserResponse with all fields including email and phone
     """
     new_user_id = f"user{len(fake_users_db) + 1}"
     
@@ -162,7 +162,7 @@ async def create_user(request: CreateUserRequest):
         "email": request.email,
         "password": request.password,
         "name": request.name,
-        "mobile": request.mobile,
+        "phone": request.phone,
         "created_at": datetime.now().isoformat() + "Z"
     }
     
@@ -172,7 +172,7 @@ async def create_user(request: CreateUserRequest):
         id=new_user["id"],
         email=new_user["email"],
         name=new_user["name"],
-        mobile=new_user["mobile"],
+        phone=new_user["phone"],
         created_at=new_user["created_at"]
     )
 
@@ -268,7 +268,7 @@ async def get_profile(token: str):
         "id": user["id"],
         "email": user["email"],
         "name": user["name"],
-        "mobile": user["mobile"],
+        "phone": user["phone"],
         "created_at": user["created_at"],
         "lastLogin": datetime.now().isoformat() + "Z"
     }
@@ -303,7 +303,7 @@ if __name__ == "__main__":
     print("📡 OpenAPI Spec: http://localhost:8000/openapi.json")
     print("\nAvailable endpoints:")
     print("  GET  /                    - Health check")
-    print("  GET  /api/users/{id}      - Get user (has email, mobile fields)")
+    print("  GET  /api/users/{id}      - Get user (has email, phone fields)")
     print("  GET  /api/users           - List all users")
     print("  POST /api/users           - Create user")
     print("  POST /api/login           - Login (returns token, refreshToken)")
