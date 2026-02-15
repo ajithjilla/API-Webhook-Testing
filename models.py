@@ -8,7 +8,6 @@ from typing import Optional, Dict, Any
 class UserResponse(BaseModel):
     """Response model for user data"""
     id: str
-    email: str
     name: str
     phone: str
     created_at: str
