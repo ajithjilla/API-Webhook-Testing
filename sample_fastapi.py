@@ -26,14 +26,12 @@ app.add_middleware(
 class UserResponse(BaseModel):
     """Response model for user data"""
     id: str
-    email: str  # <- This field will be removed in breaking change
     name: str
     phone: str  # <- This field will also be removed
     created_at: str
 
 class LoginRequest(BaseModel):
     """Request model for login"""
-    email: str
     password: str
 
 class LoginResponse(BaseModel):
@@ -46,7 +44,6 @@ class LoginResponse(BaseModel):
 
 class CreateUserRequest(BaseModel):
     """Request model for creating user"""
-    email: str
     password: str
     name: str
     phone: str
@@ -152,7 +149,6 @@ async def create_user(request: CreateUserRequest):
     Create a new user
     
     Body parameters:
-    - email: str (required)
     - password: str (required)
     - name: str (required)
     - phone: str (required)
